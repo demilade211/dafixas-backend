@@ -111,7 +111,32 @@ const ProfileSchema = new Schema({
                 default: false
             },
         },
-    }
+    },
+    assignedJobs: [
+        {
+            jobId: {
+                type: Schema.Types.ObjectId, // Reference to the Job model
+                ref: "Job",
+                required: true
+            },
+            status: {
+                type: String,
+                enum: ["pending", "accepted", "completed", "approved", "paid", "closed", "rejected"], 
+            },
+            jobType: {
+                type: String,
+                required: true
+            },
+            address: {
+                type: String,
+                required: true
+            },
+            startDate: {
+                type: Date,
+                required: true
+            }
+        }
+    ]
     
 },
     { timestamps: true });

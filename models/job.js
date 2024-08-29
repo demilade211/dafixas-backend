@@ -20,7 +20,7 @@ const JobSchema = new Schema({
         type: String,
         required: true
     },
-    picture: [
+    pictures: [
         {
             public_id: {
                 type: String,
@@ -36,8 +36,7 @@ const JobSchema = new Schema({
         },
         url: {
             type: String,
-        },
-        optional: true
+        }
     },
     startDate: {
         type: Date,

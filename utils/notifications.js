@@ -1,8 +1,5 @@
-import UserModel from "../models/user"
-import profileModel from "../models/profile"
-import PostModel from "../models/post"
-import NotificationModel from "../models/notification"
-import FollowersModel from "../models/followers"
+import UserModel from "../models/user" 
+import NotificationModel from "../models/notification" 
 import ErrorHandler from "./errorHandler";
 
 export const setNotificationToUnread = async(userId,next)=>{
@@ -21,19 +18,21 @@ export const setNotificationToUnread = async(userId,next)=>{
 
 }
 
-export const newTipNotification = async(userId,userToNotifyId,numOfTuales,next)=>{
+export const newRequestNotification = async(userId,userToNotifyId,jobId,next)=>{
 
     try {
         const userToNotify = await NotificationModel.findOne({user:userToNotifyId});
 
         const newNotification = {
-            type: "newTip",
+            type: "newJobRequest",
             user: userId, 
-            date: Date.now(),
-            numOfTuales
+            job:jobId,
+            date: Date.now(), 
         }
 
-        await userToNotify.notifications.unshift(newNotification);
+        if (!userToNotify) return next(new ErrorHandler("User doesn't exist", 200))
+
+        userToNotify.notifications.unshift(newNotification);
         await userToNotify.save();
         await setNotificationToUnread(userToNotifyId,next)
         return;

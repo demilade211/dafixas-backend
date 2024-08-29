@@ -1,6 +1,6 @@
 import UserModel from "../models/user"
 import ProfileModel from "../models/profile.js"
-import otpModel from "../models/otps"
+import NotificationModel from "../models/notification.js"
 import ErrorHandler from "../utils/errorHandler.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
@@ -126,12 +126,44 @@ export const registerUser = async (req, res, next) => {
             tel
         };
 
-        if(role==="user"){
+        if (role === "user") {
+            profileFields.wallet = { balance: 0 };
+        }
 
+        if (role === "artisan") { 
+            profileFields.bankInfo = {
+                account_name: "",
+                account_number: "",
+                bank_name: "",
+                bank_code: "",
+            };
+            profileFields.verification = {
+                level1: {
+                    validId: { public_id: "", url: "" },
+                    passport: { public_id: "", url: "" },
+                    verified: false,
+                },
+                level2: {
+                    tel: "",
+                    address: "",
+                    verified: false,
+                },
+                level3: {
+                    tradeCertificate: { public_id: "", url: "" },
+                    proofOfTraining: { public_id: "", url: "" },
+                    cv: { public_id: "", url: "" },
+                    verified: false,
+                },
+                level4: {
+                    testDay: "",
+                    testTime: "",
+                    verified: false,
+                },
+            };
         }
 
         const savedProfile = await ProfileModel.create(profileFields);
-        const savedNotification = await NotificationModel.create({ user: savedUser._id, notifications: [] });
+        const savedNotification = await NotificationModel.create({ user: savedUser._id  });
 
 
 
