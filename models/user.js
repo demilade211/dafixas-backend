@@ -45,6 +45,10 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false
     },
+    verificationLevel: {
+        type: Number,
+        default: 0
+    },
     isDeactivated: {
         type: Boolean,
         default: false

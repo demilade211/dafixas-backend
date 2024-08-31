@@ -16,6 +16,9 @@ const ProfileSchema = new Schema({
         },
     },
     location: {
+        state: {
+            type: String,
+        },
         address: {
             type: String,
         },
@@ -36,6 +39,12 @@ const ProfileSchema = new Schema({
     },
     verification:{
         level1:{
+            firstName:{
+                type: String, 
+            },
+            lastName:{
+                type: String, 
+            },
             validId: {
                 public_id: {
                     type: String, 
