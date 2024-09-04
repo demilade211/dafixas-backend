@@ -4,6 +4,7 @@ import errorMiddleware from "./middlewares/errorsMiddleware"
 import auth from "./routes/auth"   
 import job from "./routes/job"   
 import notification from "./routes/notification"
+import profile from "./routes/profile"
 import cors from "cors"; 
 import fileUpload from "express-fileupload"
 
@@ -23,6 +24,7 @@ app.use(fileUpload({
 app.use('/api/v1',auth);   
 app.use('/api/v1/job',job);  
 app.use('/api/v1/notification',notification);
+app.use('/api/v1/profile',profile);
 
 //Middleware to handle errors
 app.use(errorMiddleware);

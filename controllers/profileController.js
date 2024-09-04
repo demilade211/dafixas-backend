@@ -4,6 +4,8 @@ import ErrorHandler from "../utils/errorHandler.js";
 import cloudinary from "cloudinary"
 import { paginate } from "../utils/helpers"
 import { removeTemp } from "../utils/upload"
+import jwt from 'jsonwebtoken';
+import bcrypt from "bcryptjs";
 
 export const getProfile = async (req, res, next) => {
     const { _id } = req.user; // Assuming the user ID is available in req.user
@@ -28,9 +30,16 @@ export const getProfile = async (req, res, next) => {
 };
 
 export const getWalletBalance = async (req, res, next) => {
-    const { _id } = req.user; // Assuming the user ID is available in req.user
+    const { _id,role } = req.user; // Assuming the user ID is available in req.user
 
     try {
+
+        console.log("hi");
+
+        if (role !== "user") {
+            return next(new ErrorHandler('Only user has wallet', 400));
+        }
+
         // Find the user's profile and get the wallet balance
         const profile = await ProfileModel.findOne({ user: _id });
 
@@ -49,7 +58,7 @@ export const getWalletBalance = async (req, res, next) => {
 };
 
 export const updatePersonalInfo = async (req, res, next) => {
-    const { name, tel } = req.body;
+    const { firstName,lastName, tel } = req.body;
     const { _id } = req.user;
     let avatar;
 
@@ -59,6 +68,8 @@ export const updatePersonalInfo = async (req, res, next) => {
         if (!user) {
             return next(new ErrorHandler("User not found", 404));
         }
+
+        const name = `${firstName} ${lastName}`
 
         // Update name
         if (name) user.name = name 
@@ -208,7 +219,7 @@ export const updateBankInfo = async (req, res, next) => {
 
 export const updateLevel1 = async (req, res, next) => {
     const { firstName, lastName } = req.body;
-    const { id } = req.user;
+    const { id,role } = req.user;
     const { validId, passport } = req.files; // Assuming files are sent as 'validId' and 'passport'
 
     try {
@@ -218,7 +229,7 @@ export const updateLevel1 = async (req, res, next) => {
             return next(new ErrorHandler('Profile not found', 404));
         }
 
-        if (profile.user.role !== 'artisan') {
+        if (role !== 'artisan') {
             return next(new ErrorHandler('You are not an artisan', 403));
         }
 
@@ -272,7 +283,7 @@ export const updateLevel1 = async (req, res, next) => {
 
 export const updateLevel2 = async (req, res, next) => {
     const { tel, address } = req.body;
-    const { id } = req.user;
+    const { id,role } = req.user;
 
     try {
         const profile = await ProfileModel.findOne({ user: id });
@@ -280,7 +291,7 @@ export const updateLevel2 = async (req, res, next) => {
             return next(new ErrorHandler('Profile not found', 404));
         }
 
-        if (profile.user.role !== 'artisan') {
+        if (role !== 'artisan') {
             return next(new ErrorHandler('You are not an artisan', 403));
         }
 
@@ -305,7 +316,7 @@ export const updateLevel2 = async (req, res, next) => {
 
 export const updateLevel3 = async (req, res, next) => {
     const { tradeCertificate, proofOfTraining, cv } = req.files; // Assuming files are sent as 'tradeCertificate', 'proofOfTraining', 'cv'
-    const { id } = req.user;
+    const { id,role } = req.user;
 
     try {
         const profile = await ProfileModel.findOne({ user: id });
@@ -313,7 +324,7 @@ export const updateLevel3 = async (req, res, next) => {
             return next(new ErrorHandler('Profile not found', 404));
         }
 
-        if (profile.user.role !== 'artisan') {
+        if (role !== 'artisan') {
             return next(new ErrorHandler('You are not an artisan', 403));
         }
 
@@ -378,7 +389,7 @@ export const updateLevel3 = async (req, res, next) => {
 
 export const updateLevel4 = async (req, res, next) => {
     const { testDay, testTime } = req.body;
-    const { id } = req.user;
+    const { id,role } = req.user;
 
     try {
         const profile = await ProfileModel.findOne({ user: id });
@@ -386,7 +397,7 @@ export const updateLevel4 = async (req, res, next) => {
             return next(new ErrorHandler('Profile not found', 404));
         }
 
-        if (profile.user.role !== 'artisan') {
+        if (role !== 'artisan') {
             return next(new ErrorHandler('You are not an artisan', 403));
         }
 

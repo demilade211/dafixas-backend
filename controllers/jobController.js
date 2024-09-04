@@ -185,7 +185,7 @@ export const getJobDetail = async (req, res, next) => {
         }
 
         // Find the job by ID and ensure the job belongs to the artisan
-        const job = await JobModel.findOne({ _id: jobId, user: _id })
+        const job = await JobModel.findOne({ _id: jobId})
             .populate('user')
             .populate('artisans')
             .populate('supervisors');
@@ -205,7 +205,7 @@ export const getJobDetail = async (req, res, next) => {
 
 export const acceptJob = async (req, res, next) => {
     const { jobId } = req.params;
-    const { id } = req.user;
+    const { id,role } = req.user;
 
     try {
         // Find the artisan's profile
@@ -215,7 +215,7 @@ export const acceptJob = async (req, res, next) => {
         }
 
         // Check if the user is an artisan
-        if (profile.user.role !== 'artisan') {
+        if (role !== 'artisan') {
             return next(new ErrorHandler('You are not an artisan', 403));
         }
 
