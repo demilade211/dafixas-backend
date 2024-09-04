@@ -11,10 +11,14 @@ const sendEmail = async (options) => {
   const ENDPOINT = "https://send.api.mailtrap.io/";
 
   const client = new MailtrapClient({ endpoint: ENDPOINT, token: process.env.MAILTRAP_TOKEN });
+  const testClient = new MailtrapClient({
+    endpoint: ENDPOINT,
+    token: process.env.MAILTRAP_TOKEN,
+  });
 
-  const sender = {   email: "noreply@gamrslog.online" };
+  const sender = {   email: "mailtrap@demomailtrap.com" };
 
-  await client.send({
+  await testClient.send({
     from: sender,
     to: [{ email: options.email }],
     subject: options.subject,
