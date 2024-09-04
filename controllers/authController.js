@@ -1,6 +1,7 @@
 import UserModel from "../models/user"
 import ProfileModel from "../models/profile.js"
 import NotificationModel from "../models/notification.js"
+import otpModel from "../models/otps"
 import ErrorHandler from "../utils/errorHandler.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
