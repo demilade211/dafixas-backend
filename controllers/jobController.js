@@ -180,9 +180,9 @@ export const getJobDetail = async (req, res, next) => {
 
     try {
         // Check if the user is an artisan
-        if (role !== 'artisan') {
-            return next(new ErrorHandler('You are not an artisan', 403));
-        }
+        // if (role !== 'artisan') {
+        //     return next(new ErrorHandler('You are not an artisan', 403));
+        // }
 
         // Find the job by ID and ensure the job belongs to the artisan
         const job = await JobModel.findOne({ _id: jobId})
