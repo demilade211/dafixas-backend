@@ -179,7 +179,7 @@ export const getJobDetail = async (req, res, next) => {
     const { _id, role } = req.user;
 
     try {
-        // Check if the user is an artisan
+        // Check if the user is an artisan TEST
         // if (role !== 'artisan') {
         //     return next(new ErrorHandler('You are not an artisan', 403));
         // }
