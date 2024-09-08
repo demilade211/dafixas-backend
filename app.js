@@ -6,6 +6,7 @@ import job from "./routes/job"
 import notification from "./routes/notification"
 import profile from "./routes/profile"
 import user from "./routes/user"
+import dashboard from "./routes/dashboard"
 import cors from "cors"; 
 import fileUpload from "express-fileupload"
 
@@ -23,6 +24,7 @@ app.use(fileUpload({
 }));
 
 app.use('/api/v1',auth);   
+app.use('/api/v1/dashboard',dashboard);  
 app.use('/api/v1/job',job);  
 app.use('/api/v1/notification',notification);
 app.use('/api/v1/profile',profile);
