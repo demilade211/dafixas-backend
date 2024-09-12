@@ -137,7 +137,7 @@ export const getUserJobs = async (req, res, next) => {
 };
 
 export const getArtisanAssignedJobs = async (req, res, next) => {
-    const { pageNumber } = req.query;
+    const { status,pageNumber } = req.query;
     const { _id, role } = req.user;
     const size = 8;
 
