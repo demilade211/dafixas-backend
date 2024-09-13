@@ -259,3 +259,92 @@ export const getProject = async (req, res, next) => {
         return next(error);
     }
 };
+
+export const acceptRequest = async (req, res, next) => {
+    const { jobId } = req.params; // Get the job ID from the route parameters
+
+    try {
+        // Find the job by ID and update the status to 'accepted'
+        const job = await JobModel.findByIdAndUpdate(
+            jobId,
+            { status: 'accepted' },
+            { new: true } // Return the updated document
+        );
+
+        // Check if the job was found
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Job status updated to accepted',
+            job
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+export const rejectRequest = async (req, res, next) => {
+    const { jobId } = req.params; // Get the job ID from the route parameters
+
+    try {
+        // Find the job by ID and update the status to 'rejected'
+        const job = await JobModel.findByIdAndUpdate(
+            jobId,
+            { status: 'rejected' },
+            { new: true } // Return the updated document
+        );
+
+        // Check if the job was found
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Job status updated to rejected',
+            job
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+export const assignSupervisorToJob = async (req, res, next) => {
+    const { jobId, supervisorId } = req.params; // Get the job and supervisor IDs from route parameters
+
+    try {
+        // Find the supervisor by ID and check if their role is 'supervisor'
+        const supervisor = await UserModel.findById(supervisorId);
+
+        if (!supervisor) {
+            return next(new ErrorHandler('Supervisor not found', 404));
+        }
+
+        if (supervisor.role !== 'supervisor') {
+            return next(new ErrorHandler('User is not a supervisor', 400));
+        }
+
+        // Find the job by ID and push the supervisor to the array of supervisors
+        const job = await JobModel.findByIdAndUpdate(
+            jobId,
+            { $push: { supervisors: supervisorId } }, // Push supervisorId to the supervisors array
+            { new: true } // Return the updated document
+        );
+
+        // Check if the job was found
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Supervisor assigned to the job successfully',
+            job
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
