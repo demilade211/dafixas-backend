@@ -46,7 +46,7 @@ export const getArtisans = async (req, res, next) => {
 
         // Fetch paginated artisans with the specified role and status
         const artisans = await UserModel.find(query)
-            .select('name email tel state verified') // Select fields to display from User model
+            .select('name email tel state verified verificationLevel') // Select fields to display from User model
             .skip(skips) // Skip previously fetched artisans
             .limit(limit) // Limit the results per page 
             .sort({ createdAt: -1 })

@@ -7,6 +7,13 @@ export const paginate = (items, page, perPage) => {
   return items.slice(perPage * (page - 1), perPage * page);
 }
 
+export const paginate2 = (pageNumber, pageSize) => {
+  const page = Number(pageNumber) || 1;
+  const limit = Number(pageSize) || 8;
+  const skips = limit * (page - 1);
+  return { page, limit, skips };
+};
+
 export const handleEmail = async (user, next, message,res) => {
   try {
     await sendEmail({
