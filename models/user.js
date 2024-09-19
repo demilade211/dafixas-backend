@@ -6,8 +6,7 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
     name: {
-        type: String,
-        unique: true,
+        type: String, 
         trim: true,// no spaces
         required: [true, 'Please enter your name'],
     },
