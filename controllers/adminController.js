@@ -172,7 +172,7 @@ export const getUserProjects = async (req, res, next) => {
         }
  
         // Get total count of jobs for pagination
-        const totalJobs = await JobModel.countDocuments(query);
+        const totalProjects = await JobModel.countDocuments(query);
 
         // Pagination logic
         const skips = size * (page - 1);
@@ -187,7 +187,7 @@ export const getUserProjects = async (req, res, next) => {
         return res.status(200).json({
             success: true, 
             jobs,
-            totalJobs,
+            totalProjects,
         });
     } catch (error) {
         return next(error);
