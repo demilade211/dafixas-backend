@@ -9,6 +9,7 @@ import crypto from "crypto"
 import sendEmail from "../utils/sendEmail"
 import newOTP from 'otp-generators';
 import { handleEmail } from "../utils/helpers"; 
+import { sendWhatsappOtp } from "../utils/sendWhatsapp.js"; 
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -17,6 +18,8 @@ const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 export const sendOtpToEmail = async (req, res, next) => {
 
     const { email } = req.body;
+
+    const { tel } = req.query;
 
     // Generate token
     const otp = newOTP.generate(5, { alphabets: false, upperCase: false, specialChar: false });
@@ -44,6 +47,8 @@ export const sendOtpToEmail = async (req, res, next) => {
 
             await user.save({ validateBeforeSave: false });
 
+            tel&&await sendWhatsappOtp(tel,otp)
+
             return await handleEmail(user, next, message, res)
 
         }
@@ -56,6 +61,7 @@ export const sendOtpToEmail = async (req, res, next) => {
         });
 
 
+        tel&&await sendWhatsappOtp(tel,otp)
         return await handleEmail(savedUser, next, message, res)
 
 
