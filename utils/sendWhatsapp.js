@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "config/config.env" });
 // Twilio credentials
 const accountSid = process.env.ACCOUNT_SID;
-const authToken = process.env.AUTH_TOKEN;
+const authToken = process.env.AUTH_TOKEN;//token
 
 // Initialize the Twilio client
 const client = twilio(accountSid, authToken);
