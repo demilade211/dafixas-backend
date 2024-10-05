@@ -1,7 +1,13 @@
 import UserModel from '../models/user'; // Ensure that the correct path to the User model is used
 import ProfileModel from "../models/profile"
 import JobModel from "../models/job.js"
+import SupervisorModel from "../models/supervisortokens.js"
 import ErrorHandler from "../utils/errorHandler.js";
+import crypto from "crypto"
+import sendEmail from "../utils/sendEmail"
+import newOTP from 'otp-generators';
+import { handleEmail } from "../utils/helpers"; 
+
 
 export const adminSummary = async (req, res, next) => {
     try {
@@ -346,5 +352,106 @@ export const assignSupervisorToJob = async (req, res, next) => {
         });
     } catch (error) {
         return next(error);
+    }
+};
+ 
+
+export const inviteSupervisor = async (req, res, next) => {
+    const { email } = req.body; 
+
+    try {
+        // Check if the email is already in use
+        const user = await UserModel.findOne({ email: email.toLowerCase() });
+        if (user) return next(new ErrorHandler("User with this email already exists", 400));
+
+        // Generate invitation token
+        const inviteToken = crypto.randomBytes(20).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(inviteToken).digest('hex');
+
+        // Set token expiry time (30 minutes)
+        const tokenExpire = Date.now() + 30 * 60 * 1000;
+
+        // Check if an invitation already exists for this email
+        let supervisorToken = await SupervisorModel.findOne({ email: email.toLowerCase() });
+
+        if (supervisorToken) {
+            // If the token already exists, update the inviteToken and expiry
+            supervisorToken.inviteToken = hashedToken;
+            supervisorToken.inviteTokenExpire = tokenExpire;
+        } else {
+            // Create a new token record if none exists
+            supervisorToken = await SupervisorModel.create({
+                email: email.toLowerCase(),
+                inviteToken: hashedToken,
+                inviteTokenExpire: tokenExpire, 
+            });
+        }
+
+        await supervisorToken.save({ validateBeforeSave: false });
+
+        // Prepare the invitation email content
+        const inviteUrl = `https://www.yourdomain.com/auth/complete-superviso/${inviteToken}`;
+        const message = `
+            <p>You have been invited to register as a supervisor. Please click the link below to complete your registration:</p>
+            <a href="${inviteUrl}">Register as Supervisor</a>
+            <p>If you did not request this email, please ignore it.</p>
+        `;
+
+        try {
+            // Send the invitation email
+            await sendEmail({
+                email: email.toLowerCase(),
+                subject: "Supervisor Invitation",
+                message,
+                html: message
+            });
+ 
+
+            return res.status(200).json({
+                success: true,
+                message: `Invitation email sent to ${email}`
+            });
+
+        } catch (error) {
+            // In case email sending fails, clear the invite token and expiry
+            supervisorToken.inviteToken = undefined;
+            supervisorToken.inviteTokenExpire = undefined;
+
+            await supervisorToken.save({ validateBeforeSave: false });
+
+            return next(new ErrorHandler("Email could not be sent", 500));
+        }
+
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+export const verifyInviteToken = async (req, res, next) => {
+    const { token } = req.body;
+
+    try {
+        // Hash the token provided in the request
+        const inviteToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        // Find the supervisor token document matching the hashed token and where the token hasn't expired
+        const supervisorToken = await SupervisorToken.findOne({
+            inviteToken,
+            inviteTokenExpire: { $gt: Date.now() } // Ensure the token is still valid
+        });
+
+        if (!supervisorToken) {
+            return next(new ErrorHandler('Invitation token is invalid or has expired', 400));
+        }
+
+        // If the token is valid, return success
+        return res.status(200).json({
+            success: true,
+            message: 'Invitation token verified successfully',
+            email: supervisorToken.email // Returning the email for further steps (e.g., registration)
+        });
+
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
     }
 };
