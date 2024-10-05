@@ -5,7 +5,7 @@ import {adminSummary,inviteSupervisor,verifyInviteToken,getArtisans,getUserDetai
 const router = express.Router()
 
 router.route('/').get(authenticateUser,allowedRoles('admin'),adminSummary);  
-router.route('/invite/verify').post(authenticateUser,allowedRoles('admin'),verifyInviteToken);
+router.route('/invite/verify').post(verifyInviteToken);
 router.route('/invite/supervisor').post(authenticateUser,allowedRoles('admin'),inviteSupervisor);
 router.route('/artisans').get(authenticateUser,allowedRoles('admin'),getArtisans);  
 router.route('/user/:userId').get(authenticateUser,allowedRoles('admin'),getUserDetails); 

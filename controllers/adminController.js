@@ -435,7 +435,7 @@ export const verifyInviteToken = async (req, res, next) => {
         const inviteToken = crypto.createHash('sha256').update(token).digest('hex');
 
         // Find the supervisor token document matching the hashed token and where the token hasn't expired
-        const supervisorToken = await SupervisorToken.findOne({
+        const supervisorToken = await SupervisorModel.findOne({
             inviteToken,
             inviteTokenExpire: { $gt: Date.now() } // Ensure the token is still valid
         });
