@@ -12,7 +12,7 @@ router.route('/user/:userId').get(authenticateUser,allowedRoles('admin'),getUser
 router.route('/supervisors').get(authenticateUser,allowedRoles('admin'),getSupervisors); 
 router.route('/users').get(authenticateUser,allowedRoles('admin'),getUsers); 
 router.route('/:userId/projects').get(authenticateUser,allowedRoles('admin'),getUserProjects); 
-router.route('/projects').get(authenticateUser,allowedRoles('admin'),getProjects); 
+router.route('/projects').get(authenticateUser,allowedRoles('admin','supervisor'),getProjects); 
 router.route('/projects/:projectId').get(authenticateUser,allowedRoles('admin'),getProject); 
 router.route('/accept/:jobId').post(authenticateUser,allowedRoles('admin'),acceptRequest); 
 router.route('/reject/:jobId').post(authenticateUser,allowedRoles('admin'),rejectRequest); 
