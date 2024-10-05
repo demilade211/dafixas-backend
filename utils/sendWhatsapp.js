@@ -15,10 +15,10 @@ export const sendWhatsappOtp = async (toNumber, otp) => {
     try {
         const contentVariables = `{"1":"${otp}"}`;
         const message = await client.messages.create({
-            from: 'whatsapp:+14155238886',  // Twilio's WhatsApp sandbox number
+            from: 'whatsapp:+2349088073965',  // Twilio's WhatsApp sandbox number
             contentSid: 'HX229f5a04fd0510ce1b071852155d3e75',  // Template content SID
             contentVariables,  // Content variables for dynamic values
-            to: `whatsapp:+${toNumber}`  // Destination WhatsApp number
+            to: `whatsapp:${toNumber}`  // Destination WhatsApp number
         });
         console.log('Message sent with SID:', message.sid);
     } catch (error) { 

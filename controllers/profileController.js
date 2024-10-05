@@ -58,7 +58,7 @@ export const getWalletBalance = async (req, res, next) => {
 };
 
 export const updatePersonalInfo = async (req, res, next) => {
-    const { firstName,lastName, tel } = req.body;
+    const { firstName,lastName, tel,state } = req.body;
     const { _id } = req.user;
     let avatar;
 
@@ -76,6 +76,8 @@ export const updatePersonalInfo = async (req, res, next) => {
 
         // Update telephone number
         if (tel) user.tel = tel;
+
+        if (state) user.state = state;
 
         // Update avatar if a new one is uploaded
         if (req.files && req.files.avatar) {
