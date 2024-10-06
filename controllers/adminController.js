@@ -466,7 +466,7 @@ export const getArtisansByState = async (req, res, next) => {
 
         // Find artisans who are in the same state and have the role 'artisan'
         const artisans = await UserModel.find({
-            state: state.toLowerCase(),
+            state: state,
             role: 'artisan'
         }).select('name email tel state verified verificationLevel');
 
