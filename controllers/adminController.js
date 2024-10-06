@@ -503,13 +503,15 @@ export const searchArtisan = async (req, res, next) => {
 };
 
 export const assignArtisanToJob = async (req, res, next) => {
-    const { jobId, artisanId } = req.params; // jobId and artisanId from request params
+    const { jobId, userId } = req.params; // jobId and userId from request params
     const { role } = req.user; // Get the role from the authenticated user (assumed to be a supervisor or admin)
 
     try { 
 
         // Find the artisan's user profile to ensure they exist and have the artisan role
-        const artisan = await UserModel.findById(artisanId);
+        const artisan = await UserModel.findById(userId);
+        console.log(artisan);
+        
         if (!artisan || artisan.role !== 'artisan') {
             return next(new ErrorHandler('Artisan not found or is not an artisan', 404));
         }
@@ -521,7 +523,7 @@ export const assignArtisanToJob = async (req, res, next) => {
         }
 
         // Check if the artisan has already been assigned to this job in their profile
-        const profile = await ProfileModel.findOne({ user: artisanId });
+        const profile = await ProfileModel.findOne({ user: userId });
         if (!profile) {
             return next(new ErrorHandler('Artisan profile not found', 404));
         }
@@ -545,7 +547,7 @@ export const assignArtisanToJob = async (req, res, next) => {
             success: true,
             message: 'Artisan assigned to job successfully',
             profile: {
-                artisanId: profile.user,
+                userId: profile.user,
                 assignedJobs: profile.assignedJobs,
             },
         });
