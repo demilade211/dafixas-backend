@@ -501,3 +501,55 @@ export const searchArtisan = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+export const assignArtisanToJob = async (req, res, next) => {
+    const { jobId, artisanId } = req.params; // jobId and artisanId from request params
+    const { role } = req.user; // Get the role from the authenticated user (assumed to be a supervisor or admin)
+
+    try { 
+
+        // Find the artisan's user profile to ensure they exist and have the artisan role
+        const artisan = await UserModel.findById(artisanId);
+        if (!artisan || artisan.role !== 'artisan') {
+            return next(new ErrorHandler('Artisan not found or is not an artisan', 404));
+        }
+
+        // Find the job by its ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        // Check if the artisan has already been assigned to this job in their profile
+        const profile = await ProfileModel.findOne({ user: artisanId });
+        if (!profile) {
+            return next(new ErrorHandler('Artisan profile not found', 404));
+        }
+
+        const isJobAssigned = profile.assignedJobs.some(assignedJob => assignedJob.jobId.toString() === jobId);
+        if (isJobAssigned) {
+            return next(new ErrorHandler('Artisan has already been assigned to this job', 400));
+        }
+
+        // Assign the job to the artisan's profile (assignedJobs array)
+        profile.assignedJobs.push({
+            jobId,
+            jobType: job.jobType,
+            address: job.location.address,
+            startDate: job.startDate,
+            status: 'pending',
+        });
+        await profile.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Artisan assigned to job successfully',
+            profile: {
+                artisanId: profile.user,
+                assignedJobs: profile.assignedJobs,
+            },
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
