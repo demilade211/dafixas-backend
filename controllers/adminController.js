@@ -455,3 +455,49 @@ export const verifyInviteToken = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+export const getArtisansByState = async (req, res, next) => {
+    const { state } = req.query; // Get the state from the query parameter
+
+    try {
+        if (!state) {
+            return next(new ErrorHandler("State query parameter is required", 400));
+        }
+
+        // Find artisans who are in the same state and have the role 'artisan'
+        const artisans = await UserModel.find({
+            state: state.toLowerCase(),
+            role: 'artisan'
+        }).select('name email tel state verified verificationLevel');
+
+        return res.status(200).json({
+            success: true,
+            artisans
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+export const searchArtisan = async (req, res, next) => {
+    const { name } = req.query; // Get the artisan's name from the query parameter
+
+    try {
+        if (!name) {
+            return next(new ErrorHandler("Name query parameter is required", 400));
+        }
+
+        // Find artisans whose names contain the search term, case insensitive, and with the role 'artisan'
+        const artisans = await UserModel.find({
+            name: { $regex: name, $options: 'i' }, // Case-insensitive search
+            role: 'artisan'
+        }).select('name email tel state verified verificationLevel');
+
+        return res.status(200).json({
+            success: true,
+            artisans
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};

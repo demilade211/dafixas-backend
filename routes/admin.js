@@ -1,6 +1,6 @@
 import  express from "express";
 import { authenticateUser,allowedRoles } from "../middlewares/authMiddleware";
-import {adminSummary,inviteSupervisor,verifyInviteToken,getArtisans,getUserDetails,getSupervisors,getUsers,getUserProjects, getProjects, getProject, acceptRequest, rejectRequest, assignSupervisorToJob } from "../controllers/adminController"
+import {adminSummary,inviteSupervisor,searchArtisan,verifyInviteToken,getArtisansByState,getArtisans,getUserDetails,getSupervisors,getUsers,getUserProjects, getProjects, getProject, acceptRequest, rejectRequest, assignSupervisorToJob } from "../controllers/adminController"
 
 const router = express.Router()
 
@@ -16,7 +16,9 @@ router.route('/projects').get(authenticateUser,allowedRoles('admin','supervisor'
 router.route('/projects/:projectId').get(authenticateUser,allowedRoles('admin'),getProject); 
 router.route('/accept/:jobId').post(authenticateUser,allowedRoles('admin'),acceptRequest); 
 router.route('/reject/:jobId').post(authenticateUser,allowedRoles('admin'),rejectRequest); 
-router.route('assign/:jobId/:userId').post(authenticateUser,allowedRoles('admin'),assignSupervisorToJob); 
+router.route('assign/:jobId/:userId').post(authenticateUser,allowedRoles('admin'),assignSupervisorToJob);
+router.route('/state/artisans').get(getArtisans);  
+router.route('/search/artisans').get(searchArtisan); 
 
 
 
