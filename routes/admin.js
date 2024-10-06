@@ -17,7 +17,7 @@ router.route('/projects/:projectId').get(authenticateUser,allowedRoles('admin'),
 router.route('/accept/:jobId').post(authenticateUser,allowedRoles('admin'),acceptRequest); 
 router.route('/reject/:jobId').post(authenticateUser,allowedRoles('admin'),rejectRequest); 
 router.route('assign/:jobId/:userId').post(authenticateUser,allowedRoles('admin'),assignSupervisorToJob);
-router.route('assign/artisan/:jobId/:userId').post(authenticateUser,allowedRoles('admin','supervisor'),assignArtisanToJob);
+router.route('/assign/artisan/:jobId/:userId').post(authenticateUser,allowedRoles('admin','supervisor'),assignArtisanToJob);
 router.route('/state/artisans').get(getArtisansByState);  
 router.route('/search/artisans').get(searchArtisan); 
 
