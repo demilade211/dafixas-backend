@@ -1,4 +1,4 @@
-import TournamentModel from "../models/tournament.js" 
+import JobModel from "../models/job.js" 
 import mongoose from "mongoose";
 import connectDb from "../db/db.js"
 import dotenv from "dotenv";
@@ -18,15 +18,38 @@ const seedProducts = async () =>{
         // await NotificationsModel.updateMany()
         // console.log("Notifications Updated");
         
-        await TournamentModel.updateMany({}, { $set: { isPrivate: true } })
-        console.log("Tournament Updated");
+        // await TournamentModel.updateMany({}, { $set: { isPrivate: true } })
+        // console.log("Tournament Updated");
 
-        // await ProfileModel.updateMany({}, { $unset: { authorizations: 1 }  })
-        // console.log("Profile Updated");
-        
-        
-        // await PostsModel.updateMany({}, { $set: { stars: [] } })
-        // console.log("Posts Updated");
+        const sampleProjectCosting = {
+            artisans: [
+                
+                {
+                    artisan: mongoose.Types.ObjectId(), // Replace with actual artisan ID or leave as ObjectId
+                    fee: 50000, // Sample fee
+                }, 
+            ],
+            materials: [
+                {
+                    materialName: "Cement",
+                    cost: 3000,
+                    quantity: 50, // Sample material data
+                },
+                {
+                    materialName: "Bricks",
+                    cost: 500,
+                    quantity: 1000,
+                },
+            ],
+        };
+
+        // Update all jobs with the new projectCosting field
+        await JobModel.updateMany(
+            {},
+            { $set: { projectCosting: sampleProjectCosting } }
+        );
+
+        console.log("All jobs updated with project costing");
 
 
 

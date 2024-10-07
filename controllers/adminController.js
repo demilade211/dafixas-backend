@@ -555,3 +555,130 @@ export const assignArtisanToJob = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+// Add Material to a Job
+export const addMaterialToJob = async (req, res, next) => {
+    const { jobId } = req.params;
+    const { materialName, cost, quantity } = req.body;
+
+    try {
+        // Find the job by its ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        // Add the material to the project's costing
+        job.projectCosting.materials.push({
+            materialName,
+            cost,
+            quantity
+        });
+
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Material added successfully',
+            materials: job.projectCosting.materials
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+// Edit Material in a Job
+export const editMaterialInJob = async (req, res, next) => {
+    const { jobId, materialId } = req.params;
+    const { materialName, cost, quantity } = req.body;
+
+    try {
+        // Find the job by its ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        // Find the material by its ID and update
+        const material = job.projectCosting.materials.id(materialId);
+        if (!material) {
+            return next(new ErrorHandler('Material not found', 404));
+        }
+
+        material.materialName = materialName || material.materialName;
+        material.cost = cost || material.cost;
+        material.quantity = quantity || material.quantity;
+
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Material updated successfully',
+            materials: job.projectCosting.materials
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+// Delete Material from a Job
+export const deleteMaterialFromJob = async (req, res, next) => {
+    const { jobId, materialId } = req.params;
+
+    try {
+        // Find the job by its ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        // Remove the material from the list
+        job.projectCosting.materials = job.projectCosting.materials.filter(
+            (material) => material._id.toString() !== materialId
+        );
+
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Material deleted successfully',
+            materials: job.projectCosting.materials
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+// Update Artisan Fee in a Job
+export const updateArtisanFeeInJob = async (req, res, next) => {
+    const { jobId, artisanId } = req.params;
+    const { fee } = req.body;
+
+    try {
+        // Find the job by its ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        // Find the artisan in the projectCosting list and update the fee
+        const artisan = job.projectCosting.artisans.find(
+            (artisan) => artisan.artisan.toString() === artisanId
+        );
+        if (!artisan) {
+            return next(new ErrorHandler('Artisan not found in project costing', 404));
+        }
+
+        artisan.fee = fee;
+
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Artisan fee updated successfully',
+            artisans: job.projectCosting.artisans
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};

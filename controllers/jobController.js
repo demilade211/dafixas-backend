@@ -176,19 +176,17 @@ export const getArtisanAssignedJobs = async (req, res, next) => {
 
 export const getJobDetail = async (req, res, next) => {
     const { jobId } = req.params;
-    const { _id, role } = req.user;
 
     try {
-        // Check if the user is an artisan TEST
-        // if (role !== 'artisan') {
-        //     return next(new ErrorHandler('You are not an artisan', 403));
-        // }
-
-        // Find the job by ID and ensure the job belongs to the artisan
-        const job = await JobModel.findOne({ _id: jobId})
-            .populate('user')
-            .populate('artisans')
-            .populate('supervisors');
+        // Find the job by ID and populate the necessary fields, including projectCosting.artisans
+        const job = await JobModel.findOne({ _id: jobId })
+            .populate('user') // Populate user who created the job
+            .populate('artisans') // Populate artisans assigned to the job
+            .populate('supervisors') // Populate supervisors assigned to the job
+            .populate({
+                path: 'projectCosting.artisans.artisan', // Populate artisans in projectCosting
+                model: 'User', // Assuming 'User' is the model name for artisans 
+            });
 
         if (!job) {
             return next(new ErrorHandler('Job not found', 404));
@@ -201,11 +199,12 @@ export const getJobDetail = async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
-}; 
+};
+
 
 export const acceptJob = async (req, res, next) => {
     const { jobId } = req.params;
-    const { id,role } = req.user;
+    const { id, role } = req.user;
 
     try {
         // Find the artisan's profile
@@ -234,17 +233,29 @@ export const acceptJob = async (req, res, next) => {
         assignedJob.status = 'accepted';
         await profile.save();
 
-        // Find the job and add the artisan to the assignedArtisans array
+        // Find the job
         const job = await JobModel.findById(jobId);
         if (!job) {
             return next(new ErrorHandler('Job not found', 404));
         }
 
         // Add artisan to assignedArtisans if not already added
-        const isArtisanAssigned = job.assignedArtisans.some(artisan => artisan.toString() === id);
+        const isArtisanAssigned = job.artisans.some(artisan => artisan.toString() === id);
         if (!isArtisanAssigned) {
-            job.assignedArtisans.push(id);
+            job.artisans.push(id);
         }
+        await job.save();
+
+        // Add artisan to projectCosting.artisans if not already added
+        const isArtisanInCosting = job.projectCosting.artisans.some(artisan => artisan.artisan.toString() === id);
+        if (!isArtisanInCosting) {
+            job.projectCosting.artisans.push({
+                artisan: id,
+                fee: 50000, // Set artisan fee here; you can also retrieve it dynamically if needed
+            });
+        }
+
+        // Save the job with the updated projectCosting
         await job.save();
 
         res.status(200).json({
@@ -256,10 +267,12 @@ export const acceptJob = async (req, res, next) => {
                 jobType: assignedJob.jobType,
                 address: assignedJob.address,
                 startDate: assignedJob.startDate,
+                projectCosting: job.projectCosting, // Return updated projectCosting
             },
         });
     } catch (error) {
         return next(error);
     }
 };
+
 

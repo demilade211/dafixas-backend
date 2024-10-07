@@ -76,6 +76,36 @@ const JobSchema = new Schema({
         type: String,
         enum: ["pending", "accepted", "completed", "approved", "paid", "closed", "rejected"],
         default: "pending"
+    },
+    projectCosting: {
+        artisans: [
+            {
+                artisan: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User" // Artisan reference
+                },
+                fee: {
+                    type: Number, // Fee for the artisan
+                    required: true
+                }
+            }
+        ],
+        materials: [
+            {
+                materialName: {
+                    type: String,
+                    required: true
+                },
+                cost: {
+                    type: Number, // Cost of the material
+                    required: true
+                },
+                quantity: {
+                    type: Number, // Quantity of the material
+                    required: true
+                }
+            }
+        ]
     }
 }, 
 { timestamps: true });

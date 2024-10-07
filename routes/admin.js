@@ -1,6 +1,26 @@
 import  express from "express";
 import { authenticateUser,allowedRoles } from "../middlewares/authMiddleware";
-import {adminSummary,inviteSupervisor,searchArtisan,verifyInviteToken,assignArtisanToJob,getArtisansByState,getArtisans,getUserDetails,getSupervisors,getUsers,getUserProjects, getProjects, getProject, acceptRequest, rejectRequest, assignSupervisorToJob } from "../controllers/adminController"
+import {adminSummary,
+    inviteSupervisor,
+    searchArtisan,
+    verifyInviteToken,
+    assignArtisanToJob,
+    getArtisansByState,
+    getArtisans,
+    getUserDetails,
+    getSupervisors,
+    getUsers,
+    getUserProjects, 
+    getProjects, 
+    getProject, 
+    acceptRequest, 
+    rejectRequest, 
+    assignSupervisorToJob ,
+    addMaterialToJob,         // New material-related controllers
+    editMaterialInJob,
+    deleteMaterialFromJob,
+    updateArtisanFeeInJob, 
+} from "../controllers/adminController"
 
 const router = express.Router()
 
@@ -16,12 +36,16 @@ router.route('/projects').get(authenticateUser,allowedRoles('admin','supervisor'
 router.route('/projects/:projectId').get(authenticateUser,allowedRoles('admin'),getProject); 
 router.route('/accept/:jobId').post(authenticateUser,allowedRoles('admin'),acceptRequest); 
 router.route('/reject/:jobId').post(authenticateUser,allowedRoles('admin'),rejectRequest); 
-router.route('assign/:jobId/:userId').post(authenticateUser,allowedRoles('admin'),assignSupervisorToJob);
+router.route('/assign/:jobId/:userId').post(authenticateUser,allowedRoles('admin'),assignSupervisorToJob);
 router.route('/assign/artisan/:jobId/:userId').post(authenticateUser,allowedRoles('admin','supervisor'),assignArtisanToJob);
 router.route('/state/artisans').get(getArtisansByState);  
 router.route('/search/artisans').get(searchArtisan); 
 
-
+// New routes for managing materials and artisan fees
+router.route('/job/:jobId/material/add').post(authenticateUser, allowedRoles('admin', 'supervisor'), addMaterialToJob); 
+router.route('/job/:jobId/material/edit/:materialId').put(authenticateUser, allowedRoles('admin', 'supervisor'), editMaterialInJob); 
+router.route('/job/:jobId/material/delete/:materialId').delete(authenticateUser, allowedRoles('admin', 'supervisor'), deleteMaterialFromJob);
+router.route('/job/:jobId/artisan/fee/update/:artisanId').put(authenticateUser, allowedRoles('admin', 'supervisor'), updateArtisanFeeInJob);
 
 
 
