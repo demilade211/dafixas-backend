@@ -28,7 +28,7 @@ router.route('/').get(authenticateUser,allowedRoles('admin','supervisor'),adminS
 router.route('/invite/verify').post(verifyInviteToken);
 router.route('/invite/supervisor').post(authenticateUser,allowedRoles('admin'),inviteSupervisor);
 router.route('/artisans').get(authenticateUser,allowedRoles('admin'),getArtisans);  
-router.route('/user/:userId').get(authenticateUser,allowedRoles('admin'),getUserDetails); 
+router.route('/user/:userId').get(authenticateUser,allowedRoles('admin','supervisor'),getUserDetails); 
 router.route('/supervisors').get(authenticateUser,allowedRoles('admin'),getSupervisors); 
 router.route('/users').get(authenticateUser,allowedRoles('admin'),getUsers); 
 router.route('/:userId/projects').get(authenticateUser,allowedRoles('admin'),getUserProjects); 
