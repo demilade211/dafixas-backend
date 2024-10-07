@@ -136,6 +136,10 @@ const ProfileSchema = new Schema({
                 type: String,
                 required: true
             },
+            serviceType: {
+                type: String,
+                required: true
+            },
             address: {
                 type: String,
                 required: true
