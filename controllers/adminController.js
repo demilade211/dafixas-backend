@@ -556,6 +556,7 @@ export const assignArtisanToJob = async (req, res, next) => {
         profile.assignedJobs.push({
             jobId,
             jobType: job.jobType,
+            serviceType:job.serviceType,
             address: job.location.address,
             startDate: job.startDate,
             status: 'pending',
