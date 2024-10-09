@@ -321,7 +321,8 @@ export const rejectRequest = async (req, res, next) => {
 
 export const assignSupervisorToJob = async (req, res, next) => {
     const { jobId, userId } = req.params; // Get the job and supervisor IDs from route parameters
-
+    const { _id } = req.user;
+    
     try {
         // Find the supervisor by ID and check if their role is 'supervisor'
         const supervisor = await UserModel.findById(userId);
