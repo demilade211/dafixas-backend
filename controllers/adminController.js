@@ -6,8 +6,8 @@ import ErrorHandler from "../utils/errorHandler.js";
 import crypto from "crypto"
 import sendEmail from "../utils/sendEmail"
 import newOTP from 'otp-generators';
-import { handleEmail } from "../utils/helpers"; 
-import { assignSupervisorNotification } from '../utils/notifications.js';
+import { handleEmail } from "../utils/helpers";
+import { assignArtisanNotification, assignSupervisorNotification } from '../utils/notifications.js';
 
 
 export const adminSummary = async (req, res, next) => {
@@ -30,7 +30,7 @@ export const adminSummary = async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
-}; 
+};
 
 export const getArtisans = async (req, res, next) => {
     const { pageNumber = 1, size = 10, status } = req.query; // Add status to query parameters
@@ -72,7 +72,7 @@ export const getArtisans = async (req, res, next) => {
             totalArtisans,
             verifiedArtisans,
             unverifiedArtisans,
-            artisans, 
+            artisans,
         });
     } catch (error) {
         return next(error);
@@ -85,11 +85,11 @@ export const getUserDetails = async (req, res, next) => {
 
     try {
         // Find the profile associated with the user ID, excluding the 'assignedJobs' field
-        const profile = await ProfileModel.findOne({ user: userId})
+        const profile = await ProfileModel.findOne({ user: userId })
             .populate('user'); // Populate the user details (name, email, tel, avatar)
 
         if (!profile) {
-            return next(new ErrorHandler('Profile not found', 404)); 
+            return next(new ErrorHandler('Profile not found', 404));
         }
 
         return res.status(200).json({
@@ -162,7 +162,7 @@ export const getUsers = async (req, res, next) => {
         return next(error);
     }
 };
- 
+
 
 export const getUserProjects = async (req, res, next) => {
     const { userId } = req.params; // Get userId from request parameters
@@ -177,7 +177,7 @@ export const getUserProjects = async (req, res, next) => {
         if (status) {
             query.status = status; // Filter by status if provided
         }
- 
+
         // Get total count of jobs for pagination
         const totalProjects = await JobModel.countDocuments(query);
 
@@ -192,8 +192,8 @@ export const getUserProjects = async (req, res, next) => {
             .populate('user'); // Populate user information
 
         return res.status(200).json({
-            success: true, 
-            projects:jobs,
+            success: true,
+            projects: jobs,
             totalProjects,
         });
     } catch (error) {
@@ -245,7 +245,7 @@ export const getProject = async (req, res, next) => {
     try {
         // Build query to find the project by ID
         let query = { _id: projectId };
- 
+
 
         // Fetch the project details by ID and optional status
         const project = await JobModel.findOne(query)
@@ -255,7 +255,7 @@ export const getProject = async (req, res, next) => {
 
         // Check if the project exists
         if (!project) {
-            return next(new ErrorHandler('Project not found', 404)); 
+            return next(new ErrorHandler('Project not found', 404));
         }
 
         return res.status(200).json({
@@ -373,10 +373,10 @@ export const assignSupervisorToJob = async (req, res, next) => {
     }
 };
 
- 
+
 
 export const inviteSupervisor = async (req, res, next) => {
-    const { email } = req.body; 
+    const { email } = req.body;
 
     try {
         // Check if the email is already in use
@@ -402,7 +402,7 @@ export const inviteSupervisor = async (req, res, next) => {
             supervisorToken = await SupervisorModel.create({
                 email: email.toLowerCase(),
                 inviteToken: hashedToken,
-                inviteTokenExpire: tokenExpire, 
+                inviteTokenExpire: tokenExpire,
             });
         }
 
@@ -424,7 +424,7 @@ export const inviteSupervisor = async (req, res, next) => {
                 message,
                 html: message
             });
- 
+
 
             return res.status(200).json({
                 success: true,
@@ -523,14 +523,14 @@ export const searchArtisan = async (req, res, next) => {
 
 export const assignArtisanToJob = async (req, res, next) => {
     const { jobId, userId } = req.params; // jobId and userId from request params
-    const { role } = req.user; // Get the role from the authenticated user (assumed to be a supervisor or admin)
+    const { _id, role } = req.user; // Get the role from the authenticated user (assumed to be a supervisor or admin)
 
-    try { 
+    try {
 
         // Find the artisan's user profile to ensure they exist and have the artisan role
         const artisan = await UserModel.findById(userId);
         console.log(artisan);
-        
+
         if (!artisan || artisan.role !== 'artisan') {
             return next(new ErrorHandler('Artisan not found or is not an artisan', 404));
         }
@@ -561,6 +561,8 @@ export const assignArtisanToJob = async (req, res, next) => {
             status: 'pending',
         });
         await profile.save();
+
+        await assignArtisanNotification(_id, userId, job._id, next);
 
         res.status(200).json({
             success: true,
