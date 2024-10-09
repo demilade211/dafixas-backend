@@ -321,43 +321,58 @@ export const rejectRequest = async (req, res, next) => {
 
 export const assignSupervisorToJob = async (req, res, next) => {
     const { jobId, userId } = req.params; // Get the job and supervisor IDs from route parameters
-    const { _id } = req.user;
-    
+    const { _id } = req.user; // Current user (e.g., admin assigning the supervisor)
+
     try {
         // Find the supervisor by ID and check if their role is 'supervisor'
         const supervisor = await UserModel.findById(userId);
 
+        // If the supervisor doesn't exist, return an error
         if (!supervisor) {
             return next(new ErrorHandler('Supervisor not found', 404));
         }
 
+        // Check if the user's role is 'supervisor'
         if (supervisor.role !== 'supervisor') {
             return next(new ErrorHandler('User is not a supervisor', 400));
         }
 
-        // Find the job by ID and push the supervisor to the array of supervisors
-        const job = await JobModel.findByIdAndUpdate(
-            jobId,
-            { $push: { supervisors: userId } }, // Push userId to the supervisors array
-            { new: true } // Return the updated document
-        );
+        // Find the job by ID
+        const job = await JobModel.findById(jobId);
 
-        await assignSupervisorNotification(_id, userId, job._id, next);
-
-        // Check if the job was found
+        // If the job is not found, return an error
         if (!job) {
             return next(new ErrorHandler('Job not found', 404));
         }
 
+        const isAlreadyAssigned = job.supervisors.some(
+            (supervisorId) => supervisorId.toString() === userId.toString()
+        );
+
+        // Check if the supervisor is already assigned to the job
+        if (isAlreadyAssigned) {
+            return next(new ErrorHandler('Supervisor is already assigned to this job', 400));
+        }
+
+        // Push the supervisor ID to the array of supervisors in the job
+        job.supervisors.push(userId);
+        await job.save();
+
+        // Notify the supervisor (using a notification function)
+        await assignSupervisorNotification(_id, userId, job._id, next);
+
+        // Return the success response
         return res.status(200).json({
             success: true,
             message: 'Supervisor assigned to the job successfully',
             job
         });
+
     } catch (error) {
-        return next(error);
+        return next(error); // Catch and forward any errors to the error handler
     }
 };
+
  
 
 export const inviteSupervisor = async (req, res, next) => {
