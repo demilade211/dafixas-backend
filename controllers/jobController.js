@@ -276,3 +276,58 @@ export const acceptJob = async (req, res, next) => {
 };
 
 
+export const rejectJob = async (req, res, next) => {
+    const { jobId } = req.params; // Job ID from request parameters
+    const { id, role } = req.user; // Get the user ID and role from authenticated user
+
+    try {
+        // Find the artisan's profile
+        const profile = await ProfileModel.findOne({ user: id });
+        if (!profile) {
+            return next(new ErrorHandler('Profile not found', 404));
+        }
+
+        // Check if the user is an artisan
+        if (role !== 'artisan') {
+            return next(new ErrorHandler('You are not an artisan', 403));
+        }
+
+        // Find the assigned job in the artisan's profile
+        const assignedJob = profile.assignedJobs.find(job => job.jobId.toString() === jobId);
+        if (!assignedJob) {
+            return next(new ErrorHandler('Job not found in assigned jobs', 404));
+        }
+
+        // Check if the job has already been rejected, accepted, or completed
+        if (assignedJob.status !== 'pending') {
+            return next(new ErrorHandler(`Job has already been ${assignedJob.status}`, 400));
+        }
+
+        // Update the status of the assigned job to 'rejected'
+        assignedJob.status = 'rejected';
+        await profile.save();
+
+        // Find the job by ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        } 
+
+        // Save the job after updating
+        await job.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Job rejected successfully',
+            job: {
+                jobId: assignedJob.jobId,
+                status: assignedJob.status,
+                jobType: assignedJob.jobType,
+                address: assignedJob.address,
+                startDate: assignedJob.startDate,
+            },
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
