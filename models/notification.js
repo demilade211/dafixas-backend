@@ -13,7 +13,8 @@ const NotificationSchema = new Schema({
                 enum: [
                     "newJobRequest",
                     "newMessage",
-                    "newAssign", 
+                    "newAssignSupervisor", 
+                    "newAssignArtisan"
                 ]
             },
             user: { type: Schema.Types.ObjectId, ref: "User" }, 

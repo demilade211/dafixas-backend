@@ -7,6 +7,7 @@ import crypto from "crypto"
 import sendEmail from "../utils/sendEmail"
 import newOTP from 'otp-generators';
 import { handleEmail } from "../utils/helpers"; 
+import { assignSupervisorNotification } from '../utils/notifications.js';
 
 
 export const adminSummary = async (req, res, next) => {
@@ -339,6 +340,8 @@ export const assignSupervisorToJob = async (req, res, next) => {
             { $push: { supervisors: userId } }, // Push userId to the supervisors array
             { new: true } // Return the updated document
         );
+
+        await assignSupervisorNotification(_id, userId, job._id, next);
 
         // Check if the job was found
         if (!job) {

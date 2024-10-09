@@ -41,4 +41,28 @@ export const newRequestNotification = async(userId,userToNotifyId,jobId,next)=>{
     }
 
 }
+
+export const assignSupervisorNotification = async(userId,userToNotifyId,jobId,next)=>{
+
+    try {
+        const userToNotify = await NotificationModel.findOne({user:userToNotifyId});
+
+        const newNotification = {
+            type: "newAssignSupervisor",
+            user: userId, 
+            job:jobId,
+            date: Date.now(), 
+        }
+
+        if (!userToNotify) return next(new ErrorHandler("User doesn't exist", 200))
+
+        userToNotify.notifications.unshift(newNotification);
+        await userToNotify.save();
+        await setNotificationToUnread(userToNotifyId,next)
+        return;
+    } catch (error) {
+        return next(error)
+    }
+
+}
  
