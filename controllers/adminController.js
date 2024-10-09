@@ -323,7 +323,7 @@ export const assignSupervisorToJob = async (req, res, next) => {
 
     try {
         // Find the supervisor by ID and check if their role is 'supervisor'
-        const supervisor = await UserModel.findById(supervisorId);
+        const supervisor = await UserModel.findById(userId);
 
         if (!supervisor) {
             return next(new ErrorHandler('Supervisor not found', 404));
@@ -336,7 +336,7 @@ export const assignSupervisorToJob = async (req, res, next) => {
         // Find the job by ID and push the supervisor to the array of supervisors
         const job = await JobModel.findByIdAndUpdate(
             jobId,
-            { $push: { supervisors: supervisorId } }, // Push supervisorId to the supervisors array
+            { $push: { supervisors: userId } }, // Push userId to the supervisors array
             { new: true } // Return the updated document
         );
 
