@@ -10,6 +10,7 @@ import sendEmail from "../utils/sendEmail"
 import newOTP from 'otp-generators';
 import { handleEmail } from "../utils/helpers"; 
 import { sendWhatsappOtp } from "../utils/sendWhatsapp.js"; 
+import { sendSms } from "../utils/sendSms.js";
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -47,7 +48,11 @@ export const sendOtpToEmail = async (req, res, next) => {
 
             await user.save({ validateBeforeSave: false });
 
-            tel&&await sendWhatsappOtp(tel,otp)
+            // Send OTP via WhatsApp (if tel is provided)
+            if (tel) {
+                //await sendWhatsappOtp(tel, otp);
+                await sendSms(`+${tel}`, `Your dafixas OTP is: ${otp}`,next);  // Send OTP via SMS
+            }
 
             return await handleEmail(user, next, message, res)
 
@@ -61,7 +66,11 @@ export const sendOtpToEmail = async (req, res, next) => {
         });
 
 
-        tel&&await sendWhatsappOtp(tel,otp)
+        // Send OTP via WhatsApp (if tel is provided)
+            if (tel) {
+                //await sendWhatsappOtp(tel, otp);
+                await sendSms(`+${tel}`, `Your dafixas OTP is: ${otp}`,next);  // Send OTP via SMS
+            }
         return await handleEmail(savedUser, next, message, res)
 
 
