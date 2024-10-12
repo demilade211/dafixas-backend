@@ -2,8 +2,7 @@ import app from "./app.js";
 import dotenv from "dotenv";
 import connectDb from "./db/db.js"
 import cloudinary from "cloudinary"
-
-
+ 
 
 // Handle Uncaught exceptions
 process.on('uncaughtException', err => {
@@ -29,9 +28,12 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRETE
 })
 
- 
 
-const server = app.listen(PORT, () => {
+
+
+
+
+app.listen(PORT, () => {
     console.log(`dafixas server connected on Port: http://localhost:${PORT} in ${process.env.NODE_ENV} MODE`);
 });
 
