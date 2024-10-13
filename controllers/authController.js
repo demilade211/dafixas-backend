@@ -1,6 +1,7 @@
 import UserModel from "../models/user"
 import ProfileModel from "../models/profile.js"
 import NotificationModel from "../models/notification.js"
+import Chat from "../models/chat.js"
 import otpModel from "../models/otps"
 import ErrorHandler from "../utils/errorHandler.js";
 import jwt from 'jsonwebtoken';
@@ -8,8 +9,8 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto"
 import sendEmail from "../utils/sendEmail"
 import newOTP from 'otp-generators';
-import { handleEmail } from "../utils/helpers"; 
-import { sendWhatsappOtp } from "../utils/sendWhatsapp.js"; 
+import { handleEmail } from "../utils/helpers";
+import { sendWhatsappOtp } from "../utils/sendWhatsapp.js";
 import { sendSms } from "../utils/sendSms.js";
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
@@ -51,7 +52,7 @@ export const sendOtpToEmail = async (req, res, next) => {
             // Send OTP via WhatsApp (if tel is provided)
             if (tel) {
                 //await sendWhatsappOtp(tel, otp);
-                await sendSms(`+${tel}`, `Your dafixas OTP is: ${otp}`,next);  // Send OTP via SMS
+                await sendSms(`+${tel}`, `Your dafixas OTP is: ${otp}`, next);  // Send OTP via SMS
             }
 
             return await handleEmail(user, next, message, res)
@@ -67,10 +68,10 @@ export const sendOtpToEmail = async (req, res, next) => {
 
 
         // Send OTP via WhatsApp (if tel is provided)
-            if (tel) {
-                //await sendWhatsappOtp(tel, otp);
-                await sendSms(`+${tel}`, `Your dafixas OTP is: ${otp}`,next);  // Send OTP via SMS
-            }
+        if (tel) {
+            //await sendWhatsappOtp(tel, otp);
+            await sendSms(`+${tel}`, `Your dafixas OTP is: ${otp}`, next);  // Send OTP via SMS
+        }
         return await handleEmail(savedUser, next, message, res)
 
 
@@ -108,10 +109,10 @@ export const verifyOtp = async (req, res, next) => {
 export const registerUser = async (req, res, next) => {
 
     try {
-        const { name,role,state,tel, email, password, confirmPassword } = req.body
+        const { name, role, state, tel, email, password, confirmPassword } = req.body
 
-        if (!name || !role || !state || !tel || !email || !password || !confirmPassword) return next(new ErrorHandler("Alls fields required", 400)) 
-        
+        if (!name || !role || !state || !tel || !email || !password || !confirmPassword) return next(new ErrorHandler("Alls fields required", 400))
+
 
         if (password !== confirmPassword) return next(new ErrorHandler("Passwords do not match", 200))
 
@@ -126,15 +127,15 @@ export const registerUser = async (req, res, next) => {
 
         const savedUser = await UserModel.create({
             email: email.toLowerCase(),
-            name: name.toLowerCase(), 
+            name: name.toLowerCase(),
             role,
             state,
             password,
             tel,
             authorizations: [],
-        }); 
+        });
 
- 
+
 
         let profileFields = {
             user: savedUser._id,
@@ -146,7 +147,7 @@ export const registerUser = async (req, res, next) => {
             profileFields.wallet = { balance: 0 };
         }
 
-        if (role === "artisan") { 
+        if (role === "artisan") {
             profileFields.bankInfo = {
                 account_name: "",
                 account_number: "",
@@ -179,7 +180,7 @@ export const registerUser = async (req, res, next) => {
         }
 
         const savedProfile = await ProfileModel.create(profileFields);
-        const savedNotification = await NotificationModel.create({ user: savedUser._id  });
+        const savedNotification = await NotificationModel.create({ user: savedUser._id });
 
 
 
@@ -227,6 +228,19 @@ export const loginUser = async (req, res, next) => {
         const authToken = await jwt.sign(payload, process.env.SECRETE, { expiresIn: '7d' })
 
         let name = user.name || "No name"
+
+        // Check if there's already a chat with the logged-in user and the predefined user
+        const existingChat = await Chat.findOne({
+            members: { $all: [user._id, "66d0055302243ec58f5e2799"] },
+        });
+
+        if (!existingChat) {
+            // Create a new chat if none exists
+            const newChat = new Chat({
+                members: [user._id, "66d0055302243ec58f5e2799"],
+            });
+            await newChat.save();
+        }
 
         res.status(200).json({
             success: true,
