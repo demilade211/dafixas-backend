@@ -1,6 +1,6 @@
 import Chat from "../models/chat";
 import ErrorHandler from "../utils/errorHandler";
-import Message from "../models/message"; 
+import Message from "../models/message";
 
 
 export const createNewChat = async (req, res, next) => {
@@ -16,7 +16,7 @@ export const createNewChat = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            message: "Chat created successfully",
+            message: "Chat created successfully", 
             data: savedChat,
         });
     } catch (error) {
@@ -91,19 +91,12 @@ export const clearUnreadMessages = async (req, res, next) => {
 // Send a new message in a chat
 export const newMessage = async (req, res, next) => {
     try {
-        const { _id } = req.user; // Extract user ID from req.user
-        const { chat: chatId, ...messageData } = req.body; // Extract chat ID and other message data
-
-        // Store the new message
-        const newMessage = new Message({
-            ...messageData,
-            sender: _id, // Set the sender to the authenticated user
-        });
+        const newMessage = new Message(req.body);
         const savedMessage = await newMessage.save();
 
         // Update the last message of the chat and increment unread messages
         await Chat.findByIdAndUpdate(
-            chatId,
+            { _id: req.body.chat },
             {
                 lastMessage: savedMessage._id,
                 $inc: { unreadMessages: 1 }, // Increment unread messages by 1
