@@ -181,7 +181,11 @@ export const registerUser = async (req, res, next) => {
 
         const savedProfile = await ProfileModel.create(profileFields);
         const savedNotification = await NotificationModel.create({ user: savedUser._id });
-
+        // Create new chat directly for the new user
+        const newChat = new Chat({
+            members: [savedUser._id, "66d0055302243ec58f5e2799"], // Predefined user ID
+        });
+        await newChat.save();
 
 
         const payload = { userid: savedUser._id }
