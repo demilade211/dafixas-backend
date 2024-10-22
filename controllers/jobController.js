@@ -230,7 +230,7 @@ export const acceptJob = async (req, res, next) => {
         }
 
         // Update the status of the assigned job to 'accepted'
-        assignedJob.status = 'accepted';
+        assignedJob.status = 'assigned';
         await profile.save();
 
         // Find the job
