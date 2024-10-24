@@ -18,7 +18,7 @@ export const handleEmail = async (user, next, message,res) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: "Gamrs Log OTP",
+      subject: "daFixas OTP",
       message
     })
 

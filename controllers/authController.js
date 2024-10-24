@@ -280,7 +280,7 @@ export const forgotPassword = async (req, res, next) => {
         await user.save({ validateBeforeSave: false });
 
 
-        const resetUrl = `https://www.gamrslog.online/auth/reset/${resetToken}`;
+        const resetUrl = `https://www.dafixas.com/auth/reset/${resetToken}`;
         const message = `
             <p>Please click on the link below to reset your password:</p>
             <a href="${resetUrl}">Reset Link</a>
