@@ -127,7 +127,7 @@ export const registerUser = async (req, res, next) => {
 
         const savedUser = await UserModel.create({
             email: email.toLowerCase(),
-            name: name.toLowerCase(),
+            name: name,
             role,
             state,
             password,
