@@ -8,6 +8,7 @@ import sendEmail from "../utils/sendEmail"
 import newOTP from 'otp-generators';
 import { handleEmail } from "../utils/helpers";
 import { assignArtisanNotification, assignSupervisorNotification } from '../utils/notifications.js';
+import { sendSms } from '../utils/sendSms.js';
 
 
 export const adminSummary = async (req, res, next) => {
@@ -556,7 +557,7 @@ export const assignArtisanToJob = async (req, res, next) => {
         profile.assignedJobs.push({
             jobId,
             jobType: job.jobType,
-            serviceType:job.serviceType,
+            serviceType: job.serviceType,
             address: job.location.address,
             startDate: job.startDate,
             status: 'pending',
@@ -564,6 +565,10 @@ export const assignArtisanToJob = async (req, res, next) => {
         await profile.save();
 
         await assignArtisanNotification(_id, userId, job._id, next);
+        await sendSms(`${artisan.tel}`,
+            `You have been assigned to a job on the dafixas app click this link to check 
+            https://www.dafixas.com/dashboard/notifications//${jobId}`,
+            next);  // Send OTP via SMS
 
         res.status(200).json({
             success: true,
