@@ -567,7 +567,7 @@ export const assignArtisanToJob = async (req, res, next) => {
         await assignArtisanNotification(_id, userId, job._id, next);
         await sendSms(`${artisan.tel}`,
             `You have been assigned to a job on the dafixas app click this link to check 
-            https://www.dafixas.com/dashboard/notifications//${jobId}`,
+            https://www.dafixas.com/dashboard/notifications/${jobId}`,
             next);  // Send OTP via SMS
 
         res.status(200).json({
