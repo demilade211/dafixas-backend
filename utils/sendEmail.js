@@ -16,7 +16,7 @@ const sendEmail = async (options) => {
     token: process.env.MAILTRAP_TOKEN,
   });
 
-  const sender = {   email: "noreply@gamrslog.online" };
+  const sender = {   email: "noreply@dafixas.com" };
 
   await testClient.send({
     from: sender,
