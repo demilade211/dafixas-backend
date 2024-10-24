@@ -229,7 +229,7 @@ export const acceptJob = async (req, res, next) => {
             return next(new ErrorHandler(`Job has already been ${assignedJob.status}`, 400));
         }
 
-        // Update the status of the assigned job to 'accepted'
+        // Update the status of the assigned job to 'assigned'
         assignedJob.status = 'assigned';
         await profile.save();
 
@@ -244,7 +244,9 @@ export const acceptJob = async (req, res, next) => {
         if (!isArtisanAssigned) {
             job.artisans.push(id);
         }
-        await job.save();
+
+        // Update the job status to 'assigned'
+        job.status = 'assigned';
 
         // Add artisan to projectCosting.artisans if not already added
         const isArtisanInCosting = job.projectCosting.artisans.some(artisan => artisan.artisan.toString() === id);
@@ -255,7 +257,7 @@ export const acceptJob = async (req, res, next) => {
             });
         }
 
-        // Save the job with the updated projectCosting
+        // Save the job with the updated projectCosting and status
         await job.save();
 
         res.status(200).json({
@@ -311,7 +313,10 @@ export const rejectJob = async (req, res, next) => {
         const job = await JobModel.findById(jobId);
         if (!job) {
             return next(new ErrorHandler('Job not found', 404));
-        } 
+        }
+
+        // Update the job status to 'rejected'
+        job.status = 'rejected';
 
         // Save the job after updating
         await job.save();
@@ -331,3 +336,4 @@ export const rejectJob = async (req, res, next) => {
         return next(error);
     }
 };
+
