@@ -709,3 +709,39 @@ export const updateArtisanFeeInJob = async (req, res, next) => {
         return next(new ErrorHandler(error.message, 500));
     }
 };
+
+export const completeJob = async (req, res, next) => {
+    const { jobId } = req.params;
+    const { id, role } = req.user;
+
+    try { 
+
+        // Find the job
+        const job = await JobModel.findById(jobId);
+        if (!job) return next(new ErrorHandler('Job not found', 404));
+
+        // Set the job status to 'completed'
+        job.status = 'completed';
+        await job.save();
+
+        // Get the artisan's profile
+        const profile = await ProfileModel.findOne({ user: id });
+        if (!profile) {
+            return next(new ErrorHandler('Profile not found', 404));
+        }
+
+        // Update the status of the assigned job in the artisan's profile
+        const assignedJob = profile.assignedJobs.find(job => job.jobId.toString() === jobId);
+        if (assignedJob) {
+            assignedJob.status = 'completed';
+            await profile.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Job marked as completed',
+        });
+    } catch (error) {
+        return next(error);
+    }
+};

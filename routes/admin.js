@@ -20,6 +20,7 @@ import {adminSummary,
     editMaterialInJob,
     deleteMaterialFromJob,
     updateArtisanFeeInJob, 
+    completeJob
 } from "../controllers/adminController"
 
 const router = express.Router()
@@ -47,6 +48,9 @@ router.route('/job/:jobId/material/edit/:materialId').put(authenticateUser, allo
 router.route('/job/:jobId/material/delete/:materialId').delete(authenticateUser, allowedRoles('admin', 'supervisor'), deleteMaterialFromJob);
 router.route('/job/:jobId/artisan/fee/update/:artisanId').put(authenticateUser, allowedRoles('admin', 'supervisor'), updateArtisanFeeInJob);
 
+
+// New Routes for Job Management
+router.route('/complete/:jobId').post(authenticateUser, allowedRoles("supervisor"), completeJob);
 
 
 export default router;

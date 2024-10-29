@@ -337,3 +337,82 @@ export const rejectJob = async (req, res, next) => {
     }
 };
 
+export const approveJob = async (req, res, next) => {
+    const { jobId } = req.params;
+    const { id } = req.user;
+
+    try {
+        // Find the job
+        const job = await JobModel.findById(jobId);
+        if (!job) return next(new ErrorHandler('Job not found', 404));
+
+        // Set the job status to 'approved'
+        job.status = 'approved';
+        await job.save();
+
+        // Get the artisan's profile
+        const profile = await ProfileModel.findOne({ user: id });
+        if (!profile) {
+            return next(new ErrorHandler('Profile not found', 404));
+        }
+
+        // Update the status of the assigned job in the artisan's profile
+        const assignedJob = profile.assignedJobs.find(job => job.jobId.toString() === jobId);
+        if (assignedJob) {
+            assignedJob.status = 'approved';
+            await profile.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Job approved successfully',
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
+
+export const makePayment = async (req, res, next) => {
+    const { jobId } = req.params;
+    const { amount } = req.body;
+    const { id } = req.user;
+
+    try {
+        // Get the artisan's profile
+        const profile = await ProfileModel.findOne({ user: id });
+        if (!profile) {
+            return next(new ErrorHandler('Profile not found', 404));
+        }
+
+        // Verify sufficient balance
+        if (profile.wallet.balance < amount) {
+            return next(new ErrorHandler('Insufficient wallet balance', 400));
+        }
+
+        // Deduct the amount and update the wallet balance
+        profile.wallet.balance -= amount;
+        await profile.save();
+
+        // Find the job and update its status to 'paid'
+        const job = await JobModel.findById(jobId);
+        if (!job) return next(new ErrorHandler('Job not found', 404));
+
+        job.status = 'paid';
+        await job.save();
+
+        // Update the status of the assigned job in the artisan's profile
+        const assignedJob = profile.assignedJobs.find(job => job.jobId.toString() === jobId);
+        if (assignedJob) {
+            assignedJob.status = 'paid';
+            await profile.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Payment successful and job marked as paid',
+            walletBalance: profile.wallet.balance,
+        });
+    } catch (error) {
+        return next(error);
+    }
+};
