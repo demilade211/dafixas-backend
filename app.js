@@ -9,6 +9,8 @@ import user from "./routes/user"
 import dashboard from "./routes/dashboard"
 import admin from "./routes/admin"
 import message from "./routes/message"
+import webhook from "./routes/webhook" 
+import payment from "./routes/payments" 
 
 import cors from "cors";
 import fileUpload from "express-fileupload"
@@ -95,6 +97,8 @@ app.use('/api/v1/profile', profile);
 app.use('/api/v1', user);
 app.use('/api/v1/admin', admin);
 app.use('/api/v1/message', message);
+app.use('/api/v1/webhook',webhook);
+app.use('/api/v1/payment',payment);
 
 //Middleware to handle errors
 app.use(errorMiddleware);

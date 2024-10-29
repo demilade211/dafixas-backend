@@ -3,6 +3,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import cloudinary from 'cloudinary';
 import JobModel from "../models/job.js"
 import UserModel from "../models/user"
+import JobPaymentModel from "../models/jobPayments.js"
 import ProfileModel from "../models/profile"
 import { newRequestNotification } from '../utils/notifications.js';
 import {paginate} from "../utils/helpers"
@@ -406,6 +407,14 @@ export const makePayment = async (req, res, next) => {
             assignedJob.status = 'paid';
             await profile.save();
         }
+
+        const payment = {
+            user: id, 
+            jobId:jobId,
+            amount: amount, 
+        }
+
+        const newPayment = await JobPaymentModel.create(payment);
 
         res.status(200).json({
             success: true,
