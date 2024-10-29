@@ -27,7 +27,7 @@ app.use(cors());
 //app.use(morgan('dev'))
 const io = require("socket.io")(server, {
     cors: {
-        origin: "https://dafixas-frontend.vercel.app",
+        origin: "https://www.dafixas.com",
         methods: ["GET", "POST"], 
     },
 });
