@@ -254,7 +254,7 @@ export const acceptJob = async (req, res, next) => {
         if (!isArtisanInCosting) {
             job.projectCosting.artisans.push({
                 artisan: id,
-                fee: 50000, // Set artisan fee here; you can also retrieve it dynamically if needed
+                fee: 0, // Set artisan fee here; you can also retrieve it dynamically if needed
             });
         }
 
