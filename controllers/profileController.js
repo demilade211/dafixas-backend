@@ -13,7 +13,7 @@ export const getProfile = async (req, res, next) => {
     try {
         // Find the profile associated with the user ID, excluding the 'assignedJobs' field
         const profile = await ProfileModel.findOne({ user: _id }, '-assignedJobs')
-            .populate('user', 'name email tel avatar state'); // Populate the user details (name, email, tel, avatar)
+            .populate('user', 'name email tel avatar state skill'); // Populate the user details (name, email, tel, avatar)
 
         if (!profile) {
             return next(new ErrorHandler('Profile not found', 404)); 
