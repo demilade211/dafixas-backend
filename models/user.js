@@ -24,6 +24,9 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    skill:{
+        type: String,
+    },
     password: {
         type: String,
         required: [true, 'Please enter your password'],

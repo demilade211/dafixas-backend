@@ -125,15 +125,22 @@ export const registerUser = async (req, res, next) => {
         //const dob = new Date(dateOfBirth)
 
 
-        const savedUser = await UserModel.create({
+        // Create the user with or without the skill field
+        const userData = {
             email: email.toLowerCase(),
-            name: name,
+            name,
             role,
             state,
             password,
             tel,
             authorizations: [],
-        });
+        };
+
+        if (role === "artisan") {
+            userData.skill = skill || ""; // Assign skill if role is artisan
+        }
+
+        const savedUser = await UserModel.create(userData);
 
 
 
