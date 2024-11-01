@@ -266,9 +266,7 @@ export const getProject = async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
-};
-
-import sendSms from 'path-to-sms-service'; // Adjust path to the actual location of your sendSms function
+}; 
 
 export const acceptRequest = async (req, res, next) => {
     const { jobId } = req.params;
