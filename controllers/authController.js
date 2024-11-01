@@ -109,7 +109,7 @@ export const verifyOtp = async (req, res, next) => {
 export const registerUser = async (req, res, next) => {
 
     try {
-        const { name, role, state, tel, email, password, confirmPassword } = req.body
+        const { name, role, state, tel, email, password, confirmPassword , skill} = req.body
 
         if (!name || !role || !state || !tel || !email || !password || !confirmPassword) return next(new ErrorHandler("Alls fields required", 400))
 
