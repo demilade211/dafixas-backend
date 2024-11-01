@@ -268,8 +268,10 @@ export const getProject = async (req, res, next) => {
     }
 };
 
+import sendSms from 'path-to-sms-service'; // Adjust path to the actual location of your sendSms function
+
 export const acceptRequest = async (req, res, next) => {
-    const { jobId } = req.params; // Get the job ID from the route parameters
+    const { jobId } = req.params;
 
     try {
         // Find the job by ID and update the status to 'accepted'
@@ -284,15 +286,27 @@ export const acceptRequest = async (req, res, next) => {
             return next(new ErrorHandler('Job not found', 404));
         }
 
+        // Retrieve the user to get their contact details
+        const user = await UserModel.findById(job.user);
+        if (user && user.tel) {
+            // Send SMS notification to the user
+            await sendSms(
+                `${user.tel}`,
+                `Your job request has been accepted. Chat with the admin to get the job estimate at https://www.dafixas.com/dashboard/messages`,
+                next
+            );
+        }
+
         return res.status(200).json({
             success: true,
-            message: 'Job status updated to accepted',
+            message: 'Job status updated to accepted and SMS notification sent to user',
             job
         });
     } catch (error) {
-        return next(error);
+        return next(new ErrorHandler(error.message, 500));
     }
 };
+
 
 export const rejectRequest = async (req, res, next) => {
     const { jobId } = req.params; // Get the job ID from the route parameters
@@ -410,7 +424,7 @@ export const inviteSupervisor = async (req, res, next) => {
         await supervisorToken.save({ validateBeforeSave: false });
 
         // Prepare the invitation email content
-        const inviteUrl = `https://www.yourdomain.com/auth/complete-superviso/${inviteToken}`;
+        const inviteUrl = `https://www.dafixas.com/auth/complete-superviso/${inviteToken}`;
         const message = `
             <p>You have been invited to register as a supervisor. Please click the link below to complete your registration:</p>
             <a href="${inviteUrl}">Register as Supervisor</a>
@@ -714,7 +728,7 @@ export const completeJob = async (req, res, next) => {
     const { jobId } = req.params;
     const { id, role } = req.user;
 
-    try { 
+    try {
 
         // Find the job
         const job = await JobModel.findById(jobId);
