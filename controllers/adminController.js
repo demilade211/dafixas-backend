@@ -760,8 +760,8 @@ export const completeJob = async (req, res, next) => {
 
 export const updateVerificationStatus = async (req, res, next) => {
     const { level } = req.params; // Extract level from params
-    const { id } = req.user; // Extract user ID from the authenticated user
-    const { status } = req.body; // Extract status (true or false) from the body
+    //const { id } = req.user; // Extract user ID from the authenticated user
+    const { status,id } = req.body; // Extract status (true or false) from the body
 
     try {
         // Validate the provided level
