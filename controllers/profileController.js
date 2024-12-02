@@ -7,6 +7,7 @@ import { removeTemp } from "../utils/upload"
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
+import axios from "axios"
 
 dotenv.config({ path: "config/config.env" });
 
