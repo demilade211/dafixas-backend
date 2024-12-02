@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticateUser } from "../middlewares/authMiddleware";
-import { getWalletBalance, getProfile, updatePersonalInfo,updateLocation,updatePassword,updateBankInfo,updateLevel1,updateLevel2,updateLevel3,updateLevel4 } from "../controllers/profileController";
+import { getWalletBalance, getProfile,getBankList, updatePersonalInfo,updateLocation,updatePassword,updateBankInfo,updateLevel1,updateLevel2,updateLevel3,updateLevel4 } from "../controllers/profileController";
 
 const router = express.Router()
 
@@ -14,6 +14,8 @@ router.route('/updateLevel2').post(authenticateUser, updateLevel2);
 router.route('/updateLevel3').post(authenticateUser, updateLevel3); 
 router.route('/updateLevel4').post(authenticateUser, updateLevel4); 
 router.route('/wallet').get(authenticateUser, getWalletBalance);
+router.route('/list/bank').get(getBankList);
+
 
 
 export default router;

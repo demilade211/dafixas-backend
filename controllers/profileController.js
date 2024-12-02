@@ -6,6 +6,36 @@ import { paginate } from "../utils/helpers"
 import { removeTemp } from "../utils/upload"
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "config/config.env" });
+
+const url = 'https://api.paystack.co';
+
+let secreteKey = process.env.NODE_ENV === "DEVELOPMENT" ? process.env.PAYSTACK_SECRETE_KEY_TEST : process.env.PAYSTACK_SECRETE_KEY_LIVE
+
+const config = {
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${secreteKey}`
+    }
+}
+
+export const getBankList = async (req, res, next) => {
+    try {
+
+        const paystackResponse = await axios.get(`${url}/bank`, config)
+
+
+        return res.status(200).json({
+            success: true,
+            banks: paystackResponse.data.data
+        })
+
+    } catch (error) {
+        return next(error)
+    }
+}
 
 export const getProfile = async (req, res, next) => {
     const { _id } = req.user; // Assuming the user ID is available in req.user

@@ -1,6 +1,7 @@
 import  express from "express";
 import { authenticateUser,allowedRoles } from "../middlewares/authMiddleware";
 import {adminSummary,
+    updateVerificationStatus,
     inviteSupervisor,
     searchArtisan,
     verifyInviteToken,
@@ -41,7 +42,7 @@ router.route('/assign/:jobId/:userId').post(authenticateUser,allowedRoles('admin
 router.route('/assign/artisan/:jobId/:userId').post(authenticateUser,allowedRoles('admin','supervisor'),assignArtisanToJob);
 router.route('/state/artisans').get(getArtisansByState);  
 router.route('/search/artisans').get(searchArtisan); 
-
+router.route('/verify/:level').get(authenticateUser,allowedRoles('admin'),updateVerificationStatus); 
 // New routes for managing materials and artisan fees
 router.route('/job/:jobId/material/add').post(authenticateUser, allowedRoles('admin', 'supervisor'), addMaterialToJob); 
 router.route('/job/:jobId/material/edit/:materialId').put(authenticateUser, allowedRoles('admin', 'supervisor'), editMaterialInJob); 

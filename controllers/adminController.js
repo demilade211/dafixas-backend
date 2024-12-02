@@ -756,4 +756,41 @@ export const completeJob = async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
+};  
+
+export const updateVerificationStatus = async (req, res, next) => {
+    const { level } = req.params; // Extract level from params
+    const { id } = req.user; // Extract user ID from the authenticated user
+    const { status } = req.body; // Extract status (true or false) from the body
+
+    try {
+        // Validate the provided level
+        const validLevels = ["level1", "level2", "level3", "level4"];
+        if (!validLevels.includes(level)) {
+            return next(new ErrorHandler("Invalid verification level", 400));
+        }
+
+        // Find the profile by user ID
+        const profile = await ProfileModel.findOne({ user: id });
+        if (!profile) {
+            return next(new ErrorHandler("Profile not found", 404));
+        }
+
+        // Dynamically update the verification status for the specified level
+        if (profile.verification[level]) {
+            profile.verification[level].verified = status;
+            await profile.save();
+        } else {
+            return next(new ErrorHandler(`Verification level ${level} does not exist`, 400));
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `${level} verification ${status ? "enabled" : "disabled"} successfully`,
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
 };
+
+
