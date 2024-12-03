@@ -422,7 +422,7 @@ export const inviteSupervisor = async (req, res, next) => {
         await supervisorToken.save({ validateBeforeSave: false });
 
         // Prepare the invitation email content
-        const inviteUrl = `https://www.dafixas.com/auth/complete-superviso/${inviteToken}`;
+        const inviteUrl = `https://www.dafixas.com/auth/complete-supervisor/${inviteToken}`;
         const message = `
             <p>You have been invited to register as a supervisor. Please click the link below to complete your registration:</p>
             <a href="${inviteUrl}">Register as Supervisor</a>
@@ -759,9 +759,8 @@ export const completeJob = async (req, res, next) => {
 };  
 
 export const updateVerificationStatus = async (req, res, next) => {
-    const { level } = req.params; // Extract level from params
-    //const { id } = req.user; // Extract user ID from the authenticated user
-    const { status,id } = req.body; // Extract status (true or false) from the body
+    const { level } = req.params; // Extract level from params 
+    const { id,status } = req.body; // Extract status (true or false) from the body
 
     try {
         // Validate the provided level
