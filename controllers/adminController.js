@@ -9,6 +9,7 @@ import newOTP from 'otp-generators';
 import { handleEmail } from "../utils/helpers";
 import { assignArtisanNotification, assignSupervisorNotification } from '../utils/notifications.js';
 import { sendSms } from '../utils/sendSms.js';
+import cloudinary from 'cloudinary';
 
 
 export const adminSummary = async (req, res, next) => {
