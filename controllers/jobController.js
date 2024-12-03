@@ -6,7 +6,8 @@ import UserModel from "../models/user"
 import JobPaymentModel from "../models/jobPayments.js"
 import ProfileModel from "../models/profile"
 import { newRequestNotification } from '../utils/notifications.js';
-import {paginate} from "../utils/helpers"
+import { paginate } from "../utils/helpers"
+import sendBulkEmail from "../utils/sendBulkEmail.js";
 
 export const createJobRequest = async (req, res, next) => {
     const { jobType, serviceType, description, startDate, startTime, endTime, state, address } = req.body;
@@ -79,10 +80,39 @@ export const createJobRequest = async (req, res, next) => {
         const adminUserId = '66d0055302243ec58f5e2799'; // Replace this with actual admin ID
         await newRequestNotification(_id, adminUserId, job._id, next);
 
-        return res.status(201).json({
-            success: true,
-            job
-        });
+        const requestUrl = `https://www.dafixas.com/dashboard/job-requests/${job._id}`;
+        const message = `
+            <p>A new job request has been created. Please find the details below:</p>
+            <p>You can review the job request and take necessary actions by clicking the link below:</p> 
+            <a href="${requestUrl}">View Job Request</a>
+            <p>If you did not request this email, please ignore it.</p>
+        `;
+
+        try {
+            // Send the invitation email
+            await sendBulkEmail({
+                email: email.toLowerCase(),
+                subject: "daFixas Has a New Request",
+                message,
+                html: message
+            },
+                [
+                    { email: "abimbola.adefolalu@megalabourers.com" },
+                    { email: "aameasuring@gmail.com" },
+                    { email: "omoikhoje.eyitayo@megalabourers.com" }
+                ]
+            );
+
+            return res.status(201).json({
+                success: true,
+                job
+            });
+        } catch (error) {
+
+            return next(new ErrorHandler("Email could not be sent", 500));
+        }
+
+
     } catch (error) {
         if (req.files && req.files.video) {
             removeTemp(req.files.video.tempFilePath);
@@ -138,7 +168,7 @@ export const getUserJobs = async (req, res, next) => {
 };
 
 export const getArtisanAssignedJobs = async (req, res, next) => {
-    const { status,pageNumber } = req.query;
+    const { status, pageNumber } = req.query;
     const { _id, role } = req.user;
     const size = 8;
 
@@ -173,7 +203,7 @@ export const getArtisanAssignedJobs = async (req, res, next) => {
     } catch (error) {
         return next(error);
     }
-}; 
+};
 
 export const getJobDetail = async (req, res, next) => {
     const { jobId } = req.params;
@@ -409,9 +439,9 @@ export const makePayment = async (req, res, next) => {
         }
 
         const payment = {
-            user: id, 
-            jobId:jobId,
-            amount: amount, 
+            user: id,
+            jobId: jobId,
+            amount: amount,
         }
 
         const newPayment = await JobPaymentModel.create(payment);

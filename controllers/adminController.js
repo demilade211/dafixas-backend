@@ -792,4 +792,46 @@ export const updateVerificationStatus = async (req, res, next) => {
     }
 };
 
+export const deleteRequest = async (req, res, next) => {
+    const { jobId } = req.params;
+
+    try {
+        // Find the job by its ID
+        const job = await JobModel.findById(jobId);
+        if (!job) {
+            return next(new ErrorHandler('Job not found', 404));
+        }
+
+        // Delete the job from the database
+        await JobModel.findByIdAndDelete(jobId);
+
+        // Remove the job from the assignedJobs array in all profiles
+        await ProfileModel.updateMany(
+            { "assignedJobs.jobId": jobId },
+            { $pull: { assignedJobs: { jobId } } }
+        );
+
+        // Optionally, delete associated media files from Cloudinary
+        if (job.pictures && job.pictures.length) {
+            await Promise.all(
+                job.pictures.map((image) =>
+                    cloudinary.v2.uploader.destroy(image.public_id)
+                )
+            );
+        }
+
+        if (job.video && job.video.public_id) {
+            await cloudinary.v2.uploader.destroy(job.video.public_id, { resource_type: 'video' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Job request deleted successfully',
+        });
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+
 
