@@ -96,9 +96,11 @@ export const createJobRequest = async (req, res, next) => {
                 html: message
             },
                 [
-                    { email: "afolabiogunbanwo@gmail.com" }, 
+                    { email: "abimbola.adefolalu@megalabourers.com" },
+                    { email: "aameasuring@gmail.com" },
+                    { email: "omoikhoje.eyitayo@megalabourers.com" }
                 ]
-            );
+            ); 
 
             return res.status(201).json({
                 success: true,
@@ -109,7 +111,7 @@ export const createJobRequest = async (req, res, next) => {
             return next(new ErrorHandler("Email could not be sent", 500));
         }
 
-
+        
     } catch (error) {
         if (req.files && req.files.video) {
             removeTemp(req.files.video.tempFilePath);
