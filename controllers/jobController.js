@@ -90,8 +90,7 @@ export const createJobRequest = async (req, res, next) => {
 
         try {
             // Send the invitation email
-            await sendBulkEmail({
-                email: email.toLowerCase(),
+            await sendBulkEmail({ 
                 subject: "daFixas Has a New Request",
                 message,
                 html: message
