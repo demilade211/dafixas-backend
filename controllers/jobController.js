@@ -97,9 +97,7 @@ export const createJobRequest = async (req, res, next) => {
                 html: message
             },
                 [
-                    { email: "abimbola.adefolalu@megalabourers.com" },
-                    { email: "aameasuring@gmail.com" },
-                    { email: "omoikhoje.eyitayo@megalabourers.com" }
+                    { email: "abimbola.adefolalu@megalabourers.com" }, 
                 ]
             );
 
